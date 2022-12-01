@@ -98,51 +98,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Controller", function() { return Controller; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-/**
- * @class Controller
- *
- * Links the user input and the view output.
- *
- * @param model
- * @param view
- */
 var Controller = function Controller(model, view) {
-  var _this = this;
-
   _classCallCheck(this, Controller);
 
-  _defineProperty(this, "onTodoListChanged", function (todos) {
-    _this.view.displayTodos(todos);
-  });
-
-  _defineProperty(this, "handleAddTodo", function (todoText) {
-    _this.model.addTodo(todoText);
-  });
-
-  _defineProperty(this, "handleEditTodo", function (id, todoText) {
-    _this.model.editTodo(id, todoText);
-  });
-
-  _defineProperty(this, "handleDeleteTodo", function (id) {
-    _this.model.deleteTodo(id);
-  });
-
-  _defineProperty(this, "handleToggleTodo", function (id) {
-    _this.model.toggleTodo(id);
-  });
-
+  console.log("Controller initialized...");
   this.model = model;
-  this.view = view; // Explicit this binding
-
-  this.model.bindTodoListChanged(this.onTodoListChanged);
-  this.view.bindAddTodo(this.handleAddTodo);
-  this.view.bindEditTodo(this.handleEditTodo);
-  this.view.bindDeleteTodo(this.handleDeleteTodo);
-  this.view.bindToggleTodo(this.handleToggleTodo); // Display initial todos
-
-  this.onTodoListChanged(this.model.todos);
+  this.view = view;
 };
 
 /***/ }),
@@ -163,6 +124,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var app = new _controller__WEBPACK_IMPORTED_MODULE_0__["Controller"](new _model__WEBPACK_IMPORTED_MODULE_1__["Model"](), new _view__WEBPACK_IMPORTED_MODULE_2__["View"]());
+window.app = app;
 
 /***/ }),
 
@@ -182,68 +144,52 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-/**
- * @class Model
- *
- * Manages the data of the application.
- */
 var Model =
 /*#__PURE__*/
 function () {
   function Model() {
     _classCallCheck(this, Model);
 
-    this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+    console.log("Model initialized...");
+    this.todos = [{
+      id: 1,
+      text: "Participate in Architectural meetup",
+      complete: true
+    }, {
+      id: 2,
+      text: "Participate in FrontEnd meetup",
+      complete: false
+    }];
   }
 
   _createClass(Model, [{
-    key: "bindTodoListChanged",
-    value: function bindTodoListChanged(callback) {
-      this.onTodoListChanged = callback;
-    }
-  }, {
-    key: "_commit",
-    value: function _commit(todos) {
-      this.onTodoListChanged(todos);
-      localStorage.setItem('todos', JSON.stringify(todos));
-    }
-  }, {
     key: "addTodo",
     value: function addTodo(todoText) {
+      console.log("Model addTodo - todoText: ", todoText);
       var todo = {
         id: this.todos.length > 0 ? this.todos[this.todos.length - 1].id + 1 : 1,
         text: todoText,
         complete: false
       };
       this.todos.push(todo);
-
-      this._commit(this.todos);
     }
   }, {
     key: "editTodo",
-    value: function editTodo(id, updatedText) {
-      this.todos = this.todos.map(function (todo) {
-        return todo.id === id ? {
-          id: todo.id,
-          text: updatedText,
-          complete: todo.complete
-        } : todo;
-      });
-
-      this._commit(this.todos);
+    value: function editTodo(id, todoText) {
+      console.log("Model editTodo - id: " + id + " todoText: " + todoText);
     }
   }, {
     key: "deleteTodo",
     value: function deleteTodo(id) {
+      console.log("Model deleteTodd - id: ", id);
       this.todos = this.todos.filter(function (todo) {
         return todo.id !== id;
       });
-
-      this._commit(this.todos);
     }
   }, {
-    key: "toggleTodo",
-    value: function toggleTodo(id) {
+    key: "toggleToto",
+    value: function toggleToto(id) {
+      console.log("Model toggleToto - id: ", id);
       this.todos = this.todos.map(function (todo) {
         return todo.id === id ? {
           id: todo.id,
@@ -251,8 +197,6 @@ function () {
           complete: !todo.complete
         } : todo;
       });
-
-      this._commit(this.todos);
     }
   }]);
 
@@ -277,164 +221,105 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-/**
- * @class View
- *
- * Visual representation of the model.
- */
 var View =
 /*#__PURE__*/
 function () {
   function View() {
     _classCallCheck(this, View);
 
-    this.app = this.getElement('#root');
-    this.form = this.createElement('form');
-    this.input = this.createElement('input');
-    this.input.type = 'text';
-    this.input.placeholder = 'Add todo';
-    this.input.name = 'todo';
-    this.submitButton = this.createElement('button');
-    this.submitButton.textContent = 'Submit';
-    this.form.append(this.input, this.submitButton);
-    this.title = this.createElement('h1');
-    this.title.textContent = 'Todos';
-    this.todoList = this.createElement('ul', 'todo-list');
-    this.app.append(this.title, this.form, this.todoList);
-    this._temporaryTodoText = '';
+    console.log("View initialized..."); //  the root element
 
-    this._initLocalListeners();
+    this.app = this.getElement("#root"); //  app title
+
+    this.title = this.createElement("h1");
+    this.title.textContent = "Todos"; //  the form, with a [type="text"] input and submit button
+
+    this.form = this.createElement("form");
+    this.input = this.createElement("input");
+    this.input.type = "text";
+    this.input.placeholder = "Add todo";
+    this.input.name = "todo";
+    this.submitButton = this.createElement("button");
+    this.submitButton.textContent = "Submit"; //  the visual representation of the todo list
+
+    this.todoList = this.createElement("ul", "todo-list"); // append the input and submit button to the form
+
+    this.form.append(this.input, this.submitButton); //  append the title, form and todo list to the app
+
+    this.app.append(this.title, this.form, this.todoList);
   }
 
   _createClass(View, [{
     key: "_resetInput",
     value: function _resetInput() {
-      this.input.value = '';
-    }
-  }, {
-    key: "createElement",
-    value: function createElement(tag, className) {
-      var element = document.createElement(tag);
-      if (className) element.classList.add(className);
-      return element;
-    }
-  }, {
-    key: "getElement",
-    value: function getElement(selector) {
-      var element = document.querySelector(selector);
-      return element;
+      this.input.value = "";
     }
   }, {
     key: "displayTodos",
     value: function displayTodos(todos) {
       var _this = this;
 
-      // Delete all nodes
+      //  delete all nodes
       while (this.todoList.firstChild) {
         this.todoList.removeChild(this.todoList.firstChild);
-      } // Show default message
+      } //  show default message if list is empty
 
 
       if (todos.length === 0) {
-        var p = this.createElement('p');
-        p.textContent = 'Nothing to do! Add a task?';
+        var p = this.createElement("p");
+        p.textContent = "Nothing to do. Add a task?";
         this.todoList.append(p);
       } else {
-        // Create nodes
+        // create todo item nodes for each todo in state
         todos.forEach(function (todo) {
-          var li = _this.createElement('li');
+          var li = _this.createElement("li");
 
-          li.id = todo.id;
+          li.id = todo.id; //  each todo item will have a checkbox you can toggle
 
-          var checkbox = _this.createElement('input');
+          var checkbox = _this.createElement("input");
 
-          checkbox.type = 'checkbox';
-          checkbox.checked = todo.complete;
+          checkbox.type = "checkbox";
+          checkbox.checked = todo.complete; //  the todo item text will be in a contenteditable span
 
-          var span = _this.createElement('span');
+          var span = _this.createElement("span");
 
           span.contentEditable = true;
-          span.classList.add('editable');
+          span.classList.add("editable"); //  if the todo is complete, it will have a striethrough
 
           if (todo.complete) {
-            var strike = _this.createElement('s');
+            var strike = _this.createElement("s");
 
             strike.textContent = todo.text;
             span.append(strike);
           } else {
+            // otherwise - just diplay the text
             span.textContent = todo.text;
-          }
+          } // the todos will also have a delete button
 
-          var deleteButton = _this.createElement('button', 'delete');
 
-          deleteButton.textContent = 'Delete';
-          li.append(checkbox, span, deleteButton); // Append nodes
+          var deleteButton = _this.createElement("button", "delete");
+
+          deleteButton.textContent = "Delete";
+          li.append(checkbox, span, deleteButton); //  append all nodes to the todo list
 
           _this.todoList.append(li);
         });
-      } // Debugging
+      }
+    } //  create an element with an optional CSS class
 
-
-      console.log(todos);
-    }
   }, {
-    key: "_initLocalListeners",
-    value: function _initLocalListeners() {
-      var _this2 = this;
+    key: "createElement",
+    value: function createElement(tag, className) {
+      var element = document.createElement(tag);
+      if (className) element.classList.add(className);
+      return element;
+    } //  retrieve an element from the DOM
 
-      this.todoList.addEventListener('input', function (event) {
-        if (event.target.className === 'editable') {
-          _this2._temporaryTodoText = event.target.innerText;
-        }
-      });
-    }
   }, {
-    key: "bindAddTodo",
-    value: function bindAddTodo(handler) {
-      var _this3 = this;
-
-      this.form.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        if (_this3._todoText) {
-          handler(_this3._todoText);
-
-          _this3._resetInput();
-        }
-      });
-    }
-  }, {
-    key: "bindDeleteTodo",
-    value: function bindDeleteTodo(handler) {
-      this.todoList.addEventListener('click', function (event) {
-        if (event.target.className === 'delete') {
-          var id = parseInt(event.target.parentElement.id);
-          handler(id);
-        }
-      });
-    }
-  }, {
-    key: "bindEditTodo",
-    value: function bindEditTodo(handler) {
-      var _this4 = this;
-
-      this.todoList.addEventListener('focusout', function (event) {
-        if (_this4._temporaryTodoText) {
-          var id = parseInt(event.target.parentElement.id);
-          handler(id, _this4._temporaryTodoText);
-          _this4._temporaryTodoText = '';
-        }
-      });
-    }
-  }, {
-    key: "bindToggleTodo",
-    value: function bindToggleTodo(handler) {
-      this.todoList.addEventListener('change', function (event) {
-        if (event.target.type === 'checkbox') {
-          var id = parseInt(event.target.parentElement.id);
-          handler(id);
-        }
-      });
+    key: "getElement",
+    value: function getElement(selector) {
+      var element = document.querySelector(selector);
+      return element;
     }
   }, {
     key: "_todoText",
